@@ -9,7 +9,7 @@
 /* Layout: oscuro de un solo tema. Hero en dos columnas con muro de tarjetas verticales, calculadora como pieza central y bloques centrados. */
 :root{
   color-scheme:light;
-  --bg:#fff; --panel:#fafafa; --panel-2:#f4f4f5; --line:#e4e4e7;
+  --bg:#fff; --panel:#fafafa; --panel-2:#f4f4f5; --line:#e4e4e7; --soft:rgba(0,0,0,.55);
   --fg:#09090b; --muted:#52525b; --dim:#71717a; --ink:#000;
   --green:#0a8f5c; --red:#d9400f; --mark:#ffd83d;
   --fire:linear-gradient(90deg,#fb9a2c 0%,#f7701f 55%,#ea3f0b 100%);
@@ -277,6 +277,18 @@ footer{padding-block:32px;border-top:1px solid var(--line);color:var(--dim);font
   .btn,.feat{transition:none}
   .btn{animation:none}
 }
+
+/* Letras de la cabecera: misma escala que AI Producer de OpusClip */
+.logo{font-weight:600;font-size:18px;letter-spacing:-.03em}
+.links{color:var(--fg);font-weight:500;font-size:14px;letter-spacing:0}
+.btn-s,.hero .btn{font-weight:500;letter-spacing:.1px}
+.hero .over{justify-self:start;font-size:14px;line-height:18px;font-weight:500;letter-spacing:.1px;color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.hero h1{font-size:clamp(36px,4.6vw,60px);font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.hero .lede{font-size:clamp(16px,1.35vw,18px);font-weight:500;line-height:1.4;color:var(--soft)}
+.hero .micro{font-size:14px;font-weight:500;line-height:1.4;color:var(--soft)}
+.tile b{font-weight:600;letter-spacing:-.03em}
+.clip span{font-weight:500;letter-spacing:.1px}
+.wallcap{font-weight:500;font-size:16px;color:var(--soft)}
 </style>
 
 <header class="nav">
