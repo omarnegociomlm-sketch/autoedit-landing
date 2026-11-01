@@ -61,8 +61,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{o
 .cta{display:flex;flex-wrap:wrap;gap:12px}
 .micro{color:var(--dim);font-size:14px;line-height:1.4;max-width:520px}
 .wall{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.tile{background:var(--panel);border:1px solid #1c1c20;border-radius:var(--r-card);padding:8px;display:grid;gap:6px;justify-items:center;min-width:0}
-.tile b{font-size:clamp(14px,1.45vw,19px);font-weight:600;color:var(--green);line-height:1.2;text-align:center}
+.wall{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 96px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 96px),transparent)}
+.tile{background:#0b0b0d;border:1px solid #1c1c20;border-radius:var(--r-card);padding:10px;display:grid;gap:8px;justify-items:center;min-width:0}
+.tile b{font-size:clamp(18px,1.55vw,24px);font-weight:600;color:var(--green);line-height:1.1;letter-spacing:-.02em;text-align:center;white-space:nowrap}
+.clip{width:100%;aspect-ratio:9/13;border-radius:10px;position:relative;overflow:hidden;background:#111}
+.clip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.clip::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 62%,rgba(0,0,0,.85));pointer-events:none}
+.clip span{position:absolute;left:8px;right:8px;bottom:8px;z-index:1;color:#fff;font-size:clamp(11px,1.05vw,14px);font-weight:600;line-height:1.2;text-align:center}
+.wallbox{min-width:0}
+.wallcap{margin-top:-28px;position:relative;color:var(--dim);font-size:clamp(15px,1.4vw,18px);line-height:1.35;text-align:center}
+.wallcap em{font-style:normal;color:#fff}
 .shot{width:100%;aspect-ratio:9/16;border-radius:10px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding:10px 8px;text-align:center;font-size:12px;font-weight:600}
 .shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.65))}
 .shot span{position:relative;z-index:1}
@@ -234,7 +242,8 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
   .cta .btn{width:100%}
   .wall{gap:8px}
   .tile{padding:6px}
-  .tile b{font-size:13px}
+  .tile b{font-size:clamp(14px,4.4vw,22px)}
+  .clip span{left:4px;right:4px;bottom:5px;font-size:10px}
   .dm{flex-basis:72%}
   .feats,.steps{gap:12px}
   .feat{padding:0 12px 18px}
@@ -270,7 +279,10 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
         </div>
         <p class="micro">Paquete Fundador a 297 € por un año para las primeras 50 plazas. Garantía de 15 días. Necesitas tu plan de pago de Claude aparte.</p>
       </div>
-      <div class="wall" id="wall"></div>
+      <div class="wallbox">
+        <div class="wall" id="wall"></div>
+        <p class="wallcap">Seis reels, <em>seis estilos de edición</em></p>
+      </div>
     </div>
   </div>
 
@@ -560,8 +572,11 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
 const q = s => document.querySelector(s);
 const FUNCIONES = ['Corte automático', 'Animaciones a medida', 'Subtítulos', 'Vertical para Reels', 'Música y efectos', 'Final en 4K'];
 
-q('#wall').innerHTML = FUNCIONES.map((t, i) =>
-  `<div class="tile"><b>${t}</b><div class="shot v${i + 1}"><img src="estilos/hero-${i + 1}.jpg" alt="Reel editado: ${t}"></div></div>`).join('');
+const MURO = [['Corte', 'Titular y ficha'], ['Animación', 'Cara con fichas'], ['Subtítulos', 'Palabra a palabra'], ['Vertical', 'Pizarra partida'], ['Música', 'Titular y cara'], ['4K', 'Pantalla filmada']];
+const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+q('#wall').innerHTML = MURO.map(([t, estilo], i) =>
+  `<div class="tile"><b>${t}</b><div class="clip"><video src="estilos/clip-${i + 1}.mp4" poster="estilos/clip-${i + 1}.jpg" muted loop playsinline preload="auto" aria-label="Reel editado: ${estilo}"></video>${i < 3 ? `<span>${estilo}</span>` : ''}</div></div>`).join('');
+if (!sinMovimiento) document.querySelectorAll('#wall video').forEach(v => { v.muted = true; v.play().catch(() => {}); });
 
 const ESTILOS = [['Pizarra partida', 'pizarra'], ['Fichas animadas', 'fichas'], ['Titular y cara', 'titular'], ['Pantalla filmada', 'pantalla'], ['Titular y etiqueta', 'etiqueta']];
 q('#cats').innerHTML = ESTILOS.map(([t, f]) =>
