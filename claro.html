@@ -1,0 +1,737 @@
+<title>AutoEdit</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap">
+<style>
+/* Layout: oscuro de un solo tema. Hero en dos columnas con muro de tarjetas verticales, calculadora como pieza central y bloques centrados. */
+:root{
+  color-scheme:light;
+  --bg:#fff; --panel:#fafafa; --panel-2:#f4f4f5; --line:#e4e4e7;
+  --fg:#09090b; --muted:#52525b; --dim:#71717a; --ink:#000;
+  --green:#0a8f5c; --red:#d9400f; --mark:#ffd83d;
+  --fire:linear-gradient(90deg,#fb9a2c 0%,#f7701f 55%,#ea3f0b 100%);
+  --aura:linear-gradient(90deg,#6a4bff 0%,#b13fc4 50%,#e0457b 100%);
+  --sans:"Geist","Helvetica Neue",Arial,sans-serif;
+  --r-card:16px; --wrap:1160px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#fff}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+h1,h2{text-wrap:balance;font-weight:600;letter-spacing:-.01em}
+h1{font-size:clamp(40px,5.2vw,68px);line-height:1.04}
+h2{font-size:clamp(30px,3.4vw,42px);line-height:1.12}
+.wrap{width:100%;max-width:calc(var(--wrap) + 48px);margin-inline:auto;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.fire{background:var(--fire);-webkit-background-clip:text;background-clip:text;color:transparent}
+.aura{background:var(--aura);-webkit-background-clip:text;background-clip:text;color:transparent}
+section{padding-block:clamp(56px,7vw,96px)}
+.head{display:grid;gap:14px;justify-items:center;text-align:center;max-width:780px;margin:0 auto clamp(32px,4.5vw,52px)}
+.head p{color:var(--muted);font-size:clamp(17px,1.6vw,20px);line-height:1.3;max-width:640px}
+.over{color:var(--muted);font-size:15px;font-weight:500}
+.todo{display:inline-block;background:var(--mark);color:var(--ink);font-size:.72em;font-weight:600;line-height:1.3;border-radius:4px;padding:1px 6px}
+.center{display:flex;justify-content:center;margin-top:36px}
+
+/* Navegación */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .row{display:flex;align-items:center;justify-content:space-between;gap:24px;height:72px;max-width:none}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:19px;letter-spacing:-.02em}
+.logo i{width:27px;height:27px;border-radius:50%;background:var(--fg);position:relative;flex:none}
+.logo i::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#fff}
+.links{display:flex;gap:32px;font-size:14px;font-weight:500;color:rgba(0,0,0,.6)}
+.links a:hover{color:var(--fg)}
+.btn-s{background:var(--fire);color:var(--ink);font-size:14px;font-weight:600;padding:10px 16px;border-radius:8px;white-space:nowrap;transition:transform .15s}
+.btn-s:hover{transform:translateY(-3px)}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer;background:var(--fire);color:var(--ink);font:600 16px var(--sans);padding:14px 28px;border-radius:1000px;text-align:center;transition:transform .15s;animation:sube 2.4s ease-in-out infinite}
+@keyframes sube{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.btn:hover{animation:none;transform:translateY(-5px)}
+.btn:active{animation:none;transform:scale(.98)}
+.btn.ghost{background:linear-gradient(var(--bg),var(--bg)) padding-box,var(--fire) border-box;color:var(--fg);border:1px solid transparent}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #c56ad8;outline-offset:2px}
+
+/* Hero */
+.hero{padding-block:48px 56px}
+.hero .grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:center}
+.pitch{display:grid;gap:24px;padding-left:clamp(0px,3vw,40px);min-width:0}
+.lede{color:var(--muted);font-size:clamp(17px,1.6vw,20px);line-height:1.35;max-width:560px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.micro{color:var(--dim);font-size:14px;line-height:1.4;max-width:520px}
+.wall{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.wall{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 96px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 96px),transparent)}
+.tile{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:10px;display:grid;gap:8px;justify-items:center;min-width:0}
+.tile b{font-size:clamp(18px,1.55vw,24px);font-weight:600;color:var(--green);line-height:1.1;letter-spacing:-.02em;text-align:center;white-space:nowrap}
+.clip{width:100%;aspect-ratio:9/13;border-radius:10px;position:relative;overflow:hidden;background:#111}
+.clip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.clip::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 62%,rgba(0,0,0,.85));pointer-events:none}
+.clip span{position:absolute;left:8px;right:8px;bottom:8px;z-index:1;color:#fff;font-size:clamp(11px,1.05vw,14px);font-weight:600;line-height:1.2;text-align:center}
+.wallbox{min-width:0}
+.wallcap{margin-top:-28px;position:relative;color:var(--dim);font-size:clamp(15px,1.4vw,18px);line-height:1.35;text-align:center}
+.wallcap em{font-style:normal;color:var(--fg)}
+.shot{width:100%;aspect-ratio:9/16;border-radius:10px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding:10px 8px;text-align:center;font-size:12px;font-weight:600}
+.shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.65))}
+.shot span{position:relative;z-index:1}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(12px,2.4vw,32px)}
+.cat{display:grid;gap:12px;justify-items:center;min-width:0}
+.pill{background:var(--panel-2);border:1px solid var(--line);border-radius:1000px;padding:6px 16px;font-size:clamp(14px,1.5vw,19px);font-weight:600;text-align:center;line-height:1.2}
+.v1{background:linear-gradient(160deg,#3b4a5a,#8b97a3 55%,#2b3440)}
+.v2{background:linear-gradient(160deg,#7a3b2c,#c98255 50%,#3a2622)}
+.v3{background:linear-gradient(160deg,#2d4f3b,#8fb08f 55%,#26332b)}
+.v4{background:linear-gradient(160deg,#4d3a6b,#a98cc9 55%,#2a2138)}
+.v5{background:linear-gradient(160deg,#6b5a2c,#d4bb6a 55%,#352c16)}
+.v6{background:linear-gradient(160deg,#254a66,#6bb2d4 55%,#172a38)}
+
+/* Calculadora */
+.calc{position:relative;border-radius:20px;padding:clamp(20px,3vw,36px);display:grid;gap:24px;background:
+  linear-gradient(var(--panel),var(--panel)) padding-box,
+  linear-gradient(135deg,#6a4bff,#c56ad8 55%,#e0457b) border-box;border:2px solid transparent}
+.ctrls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;align-items:start}
+.ctrl{display:grid;gap:8px;min-width:0}
+.ctrl>label,.ctrl>.lab{color:var(--muted);font-size:14px;font-weight:500}
+.seg{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px}
+.seg button{flex:1;min-width:0;background:none;border:0;border-radius:7px;color:var(--muted);font:500 14px var(--sans);padding:8px 2px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--fire);color:var(--ink)}
+.step{display:flex;align-items:center;justify-content:space-between;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px}
+.step button{width:36px;height:36px;border:0;border-radius:7px;background:#e4e4e7;color:var(--fg);font:500 20px var(--sans);cursor:pointer}
+.step output{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:#c56ad8;height:36px;margin:0}
+.val{color:var(--fg);font-variant-numeric:tabular-nums}
+.adj{border-top:1px solid var(--line);padding-top:14px}
+.adj summary{cursor:pointer;color:var(--muted);font-size:14px;font-weight:500}
+.adj .ctrls{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px}
+.bills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.bill{border-radius:14px;padding:clamp(18px,2.4vw,28px);display:grid;gap:14px;align-content:start;min-width:0;background:var(--panel-2)}
+.bill.ed{border:1px solid rgba(255,106,77,.45)}
+.bill.ae{border:1px solid rgba(47,208,143,.45)}
+.bill h3{font-size:18px;font-weight:600}
+.amt{font-size:clamp(34px,4.4vw,52px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.ed .amt{color:var(--red)} .ae .amt{color:var(--green)}
+.amt small{display:block;font-size:14px;font-weight:500;color:var(--muted);margin-top:8px}
+.bill ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;color:var(--muted);font-size:15px;line-height:1.35}
+.save{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:clamp(18px,2.4vw,24px) clamp(18px,2.4vw,28px)}
+.save p{min-width:0;flex:1 1 320px;font-size:clamp(17px,1.6vw,20px);line-height:1.35}
+.save strong{display:block;font-size:clamp(34px,4.6vw,56px);line-height:1.1;font-weight:700;font-variant-numeric:tabular-nums}
+.fine{color:var(--dim);font-size:13px;line-height:1.4}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:24px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:1000px;padding:8px 16px;font-size:14px;font-weight:500;color:var(--muted)}
+
+/* Carrusel */
+.dms{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:12px;scrollbar-width:thin;scrollbar-color:#d4d4d8 transparent}
+.dm{flex:0 0 max(200px,calc((100% - 64px)/5));scroll-snap-align:start;display:grid;gap:10px;align-content:start;min-width:0}
+.dm img{display:block;width:100%;aspect-ratio:585/1000;border-radius:14px;border:1px solid var(--line)}
+.dm p{font-size:14px;line-height:1.35;color:var(--muted)}
+
+/* Dos tarjetas, flujo y comparativa */
+.vs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.box{border-radius:20px;padding:clamp(24px,3vw,36px);display:grid;gap:16px;align-content:start;background:var(--panel);border:1px solid var(--line);min-width:0}
+.box h3{font-size:clamp(24px,2.6vw,32px);font-weight:600;line-height:1.1}
+.box p{color:var(--muted);line-height:1.4}
+.lines{display:grid;gap:0;margin:0}
+.lines div{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.lines div:last-child{border-bottom:0}
+.lines dt{color:var(--muted);min-width:0}
+.lines dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lines .good dd,.lines .good dt{color:var(--green)}
+.flow{margin-top:20px}
+.flow h3{text-align:center;font-size:clamp(22px,2.4vw,28px);font-weight:600;margin-bottom:20px}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0;padding:0;list-style:none}
+.steps li{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-card);padding:18px;display:grid;gap:4px;align-content:start;min-width:0}
+.steps b{font-size:30px;font-weight:600;line-height:1;background:var(--aura);-webkit-background-clip:text;background-clip:text;color:transparent;justify-self:start}
+.steps span{font-weight:600}
+.steps small{color:var(--muted);font-size:14px}
+.box.lead{background:
+  linear-gradient(var(--panel),var(--panel)) padding-box,
+  linear-gradient(135deg,#6a4bff,#c56ad8 55%,#e0457b) border-box;border:2px solid transparent}
+
+/* Producto */
+.tl{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(14px,2vw,22px);margin-bottom:20px;display:grid;gap:8px}
+.tl .clips{display:flex;gap:4px;height:64px}
+.tl .clips i{border-radius:6px;display:block}
+.tl .wave{display:flex;align-items:center;gap:3px;height:36px;overflow:hidden}
+.tl .wave i{flex:1 1 0;min-width:2px;background:#a1a1aa;border-radius:2px}
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.feat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-card);padding:0 18px 24px;display:grid;gap:8px;justify-items:center;text-align:center;align-content:start;min-width:0;transition:border-color .2s}
+.feat:hover{border-color:#a1a1aa}
+.feat svg{width:100%;max-width:280px;height:auto;display:block}
+.feat h3{font-size:clamp(18px,1.8vw,22px);font-weight:800;line-height:1.15;letter-spacing:-.01em}
+
+/* Tablas */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-card);background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:15px}
+th,td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:14px}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600}
+td.good{color:var(--green);font-weight:600}
+.strip{margin:16px 0 28px;text-align:center;font-size:clamp(17px,1.7vw,20px);font-weight:600;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+
+/* Precios */
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}
+.offer{position:relative;overflow:hidden;border-radius:var(--r-card);padding:36px;display:grid;gap:12px;justify-items:start;background:linear-gradient(var(--panel),var(--panel)) padding-box,var(--fire) border-box;border:2px solid transparent}
+.offer>*:not(.crono){position:relative;z-index:1}
+.crono{position:absolute;right:-30px;top:50%;width:min(62%,420px);transform:translateY(-50%);color:#ffa63d;opacity:.2;pointer-events:none}
+.crono .aguja{transform-origin:100px 118px;animation:aguja 60s steps(60) infinite}
+@keyframes aguja{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.crono .aguja{animation:none}}
+.seatpill{background:var(--fire);color:var(--ink);font-size:14px;font-weight:600;border-radius:999px;padding:5px 14px}
+.offer h3{font-size:clamp(26px,3.2vw,38px);font-weight:600;line-height:1.1;letter-spacing:-.02em}
+.offer .was{color:var(--muted);font-size:17px}
+.offer .now{font-size:17px;color:var(--fg);display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 10px}
+.offer .now b{font-size:clamp(48px,6vw,68px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.offer .now small{font-size:15px;color:var(--muted)}
+.offer .rise{color:var(--red);font-size:16px;font-weight:500}
+.offer .btn{margin-top:6px}
+.plan{position:relative}
+.badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--aura);color:var(--ink);font-size:13px;font-weight:600;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.cmp{margin-top:40px}
+.cmp .pill{display:inline-block;background:var(--mark);color:var(--ink);font-size:13px;font-weight:600;border-radius:999px;padding:3px 12px}
+.cmp h3{font-size:clamp(22px,2.6vw,30px);font-weight:600;line-height:1.15;letter-spacing:-.02em;margin-top:10px}
+.cmp .duel{min-width:0}
+@media (max-width:640px){.offer{padding:24px}.crono{opacity:.1}.cmp .duel th,.cmp .duel td{font-size:13px;padding:10px 8px}}
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-card);padding:24px;display:grid;gap:14px;grid-template-rows:auto auto auto 1fr auto;min-width:0}
+.plan.top{background:
+  linear-gradient(var(--panel),var(--panel)) padding-box,
+  linear-gradient(135deg,#6a4bff,#c56ad8 55%,#e0457b) border-box;border:2px solid transparent}
+.plan h3{font-size:19px;font-weight:600}
+.price{font-size:clamp(34px,3.2vw,42px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.price small{font-size:15px;font-weight:500;color:var(--muted)}
+.plan ul{margin:0;padding:0;list-style:none;display:grid;gap:7px;color:var(--muted);font-size:15px;line-height:1.3;align-content:start}
+.plan .ed{color:var(--red)}
+.plan .btn{width:100%;padding:13px 14px;font-size:15px}
+.seats{margin-top:20px;text-align:center;font-weight:500}
+.reqs{margin-top:8px;text-align:center;color:var(--muted);font-size:15px}
+
+/* Garantía */
+.guar{display:grid;gap:18px;justify-items:center;text-align:center;max-width:760px;margin:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:clamp(28px,4vw,48px)}
+.guar p{color:var(--muted);font-size:clamp(17px,1.6vw,19px);line-height:1.35}
+
+/* FAQ */
+.faq{max-width:780px;margin:auto;display:grid;gap:10px}
+.faq details{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.faq summary{list-style:none;cursor:pointer;padding:16px 20px;font-weight:600;font-size:17px;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--muted);font-weight:500}
+.faq details[open] summary::after{content:"–"}
+.faq p{padding:0 20px 18px;color:var(--muted);line-height:1.45}
+
+/* Cierre */
+.close{position:relative;overflow:hidden;padding-block:clamp(88px,11vw,140px)}
+.close .bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);gap:12px;opacity:.28;filter:blur(3px);-webkit-mask-image:radial-gradient(ellipse at center,transparent 25%,#000 90%);mask-image:radial-gradient(ellipse at center,transparent 25%,#000 90%)}
+.close .bg div{border-radius:12px}
+.close .in{position:relative;display:grid;gap:24px;justify-items:center;text-align:center;max-width:820px;margin:auto}
+.close h2{font-size:clamp(36px,4.6vw,60px);line-height:1.05}
+.close p{color:var(--muted);font-size:clamp(17px,1.6vw,20px);line-height:1.35}
+
+/* Paneles comparativos */
+.race{display:grid;gap:8px;margin-top:4px}
+.race div{display:grid;gap:4px}
+.race span{font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:12px}
+.race b{font-weight:600;color:var(--fg);font-variant-numeric:tabular-nums}
+.race i{display:block;height:12px;border-radius:3px;min-width:3px;background:var(--red);transition:width .3s}
+.race .ok i{background:var(--green)}
+.race .ok b{color:var(--green)}
+.tag{font-size:14px;font-weight:600;margin-top:8px}
+.duel{min-width:560px}
+.duel td:nth-child(2){color:var(--muted)}
+.duel td:nth-child(3){color:var(--green);font-weight:600}
+.duel tr.me td{background:rgba(10,143,92,.08)}
+.fit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.fit ul{margin:0;padding:0;list-style:none;display:grid;gap:10px;color:var(--muted);line-height:1.35}
+.plan .sub{font-size:14px;color:var(--muted);font-weight:500;margin-top:-8px}
+.plan .ok{color:var(--green)}
+
+footer{padding-block:32px;border-top:1px solid var(--line);color:var(--dim);font-size:14px}
+
+@media (max-width:980px){
+  .links{display:none}
+  .hero .grid{grid-template-columns:minmax(0,1fr)}
+  .pitch{padding-left:0}
+  .ctrls{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cats{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px}
+  .cat{flex:0 0 min(58%,240px);scroll-snap-align:start}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .feats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .ctrls,.adj .ctrls,.bills,.vs,.plans,.fit{grid-template-columns:minmax(0,1fr)}
+  .cta .btn{width:100%}
+  .wall{gap:8px}
+  .tile{padding:6px}
+  .tile b{font-size:clamp(14px,4.4vw,22px)}
+  .clip span{left:4px;right:4px;bottom:5px;font-size:10px}
+  .dm{flex-basis:72%}
+  .feats,.steps{gap:12px}
+  .feat{padding:0 12px 18px}
+  .save .btn{width:100%}
+  .close .bg{grid-template-columns:repeat(3,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .btn,.feat{transition:none}
+  .btn{animation:none}
+}
+</style>
+
+<header class="nav">
+  <div class="row wrap">
+    <a class="logo" href="#inicio"><i></i>AutoEdit</a>
+    <nav class="links" aria-label="Principal">
+      <a href="#calculadora">Calculadora</a><a href="#cobran">Lo que cobran</a><a href="#velocidad">Velocidad</a><a href="#planes">Precios</a><a href="#preguntas">Preguntas</a>
+    </nav>
+    <a class="btn-s" href="#planes">Quiero mi plaza</a>
+  </div>
+</header>
+
+<main id="inicio">
+  <div class="hero wrap">
+    <div class="grid">
+      <div class="pitch">
+        <p class="over">Gana tiempo y ahorra mucho dinero</p>
+        <h1>Tu reel en 5 minutos. <span class="fire">Sin pagar a un editor.</span></h1>
+        <p class="lede">Grabas, lo subes y AutoEdit lo edita por ti. Tu vídeo de YouTube, en 1 a 2 horas. Un editor te cobra de 9 a 80 € por reel y te hace esperar días. AutoEdit cuesta desde 39 € al mes.</p>
+        <div class="cta">
+          <a class="btn" href="#planes">Quiero editar en minutos</a>
+          <a class="btn ghost" href="#calculadora">Calcula cuánto te ahorras</a>
+        </div>
+        <p class="micro">Plan Fundador a 297 € por un año para las primeras 50 plazas. Garantía de 15 días. Necesitas tu plan de pago de Claude aparte.</p>
+      </div>
+      <div class="wallbox">
+        <div class="wall" id="wall"></div>
+        <p class="wallcap">Seis reels, <em>seis estilos de edición</em></p>
+      </div>
+    </div>
+  </div>
+
+  <section id="calculadora" style="padding-top:24px">
+    <div class="wrap">
+      <div class="head">
+        <h2>Mira cuánto <span class="aura">te ahorras</span> con AutoEdit</h2>
+        <p>Pon lo que publicas al mes. Te enseñamos lo que te cuesta un editor y lo que te cuesta AutoEdit, en dinero y en días.</p>
+      </div>
+      <div class="calc">
+        <div class="ctrls">
+          <div class="ctrl">
+            <span class="lab">País del editor</span>
+            <div class="seg" id="pais" role="group" aria-label="País del editor">
+              <button type="button" data-p="es" aria-pressed="false">España</button>
+              <button type="button" data-p="ar" aria-pressed="true">Argentina</button>
+              <button type="button" data-p="ve" aria-pressed="false">Venezuela</button>
+            </div>
+          </div>
+          <div class="ctrl">
+            <span class="lab">Reels al mes</span>
+            <div class="step"><button type="button" id="rMenos" aria-label="Menos reels">−</button><output id="rVal">30</output><button type="button" id="rMas" aria-label="Más reels">+</button></div>
+          </div>
+          <div class="ctrl">
+            <span class="lab">Vídeos de YouTube al mes</span>
+            <div class="step"><button type="button" id="vMenos" aria-label="Menos vídeos">−</button><output id="vVal">4</output><button type="button" id="vMas" aria-label="Más vídeos">+</button></div>
+          </div>
+          <div class="ctrl">
+            <label for="dur">Duración de cada vídeo de YouTube: <span class="val" id="durVal">12 min</span></label>
+            <input id="dur" type="range" min="5" max="40" step="1" value="12">
+          </div>
+        </div>
+        <details class="adj">
+          <summary>Ajustar los precios del editor</summary>
+          <div class="ctrls">
+            <div class="ctrl"><label for="pReel">Precio por reel: <span class="val" id="pReelVal"></span></label><input id="pReel" type="range" min="5" max="80" step="1"></div>
+            <div class="ctrl"><label for="pMin">Precio por minuto: <span class="val" id="pMinVal"></span></label><input id="pMin" type="range" min="5" max="30" step="1"></div>
+            <div class="ctrl"><label for="durR">Duración media de reel: <span class="val" id="durRVal"></span></label><input id="durR" type="range" min="0.5" max="3" step="0.5" value="1"></div>
+          </div>
+        </details>
+        <div class="bills">
+          <div class="bill ed">
+            <h3>Lo que te cuesta un editor</h3>
+            <div class="amt"><span id="edMes"></span> al mes<small><span id="edAno"></span> al año</small></div>
+            <ul><li>Tu reel llega en 1 a 3 días.</li><li>Tu vídeo de YouTube, 3 a 5 días.</li><li>Y cada cambio es otra espera.</li></ul>
+          </div>
+          <div class="bill ae">
+            <h3>Lo que te cuesta AutoEdit</h3>
+            <div class="amt"><span id="aeMes"></span> al mes<small><span id="aeAno"></span> al año · plan <span id="aePlan"></span></small></div>
+            <ul><li>Tu reel está listo en 5 minutos.</li><li>Tu vídeo de YouTube, 1 a 2 horas.</li><li>Lo revisas y lo apruebas tú, sin esperar a nadie.</li><li>Más tu plan de Claude, que va aparte.</li></ul>
+          </div>
+        </div>
+        <div class="race" aria-label="Coste al año, a escala">
+          <div><span>Editor, al año <b id="barEdVal"></b></span><i id="barEd" style="width:100%"></i></div>
+          <div class="ok"><span>AutoEdit, al año <b id="barAeVal"></b></span><i id="barAe"></i></div>
+        </div>
+        <div class="save">
+          <p id="saveText">Con AutoEdit te ahorras al año <strong class="fire" id="ahAno"></strong> Son <span id="ahMes"></span> al mes. Y dejas de esperar días por cada vídeo.</p>
+          <a class="btn" href="#planes">Quiero ahorrármelo</a>
+        </div>
+        <p class="fine">Cálculo orientativo en euros. AutoEdit no incluye tu plan de Claude. Plan Fundador: 297 € por un año <span class="todo">PENDIENTE: qué incluye</span></p>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <section id="cobran">
+    <div class="wrap">
+      <div class="head">
+        <p class="over">Lo que te piden por Instagram</p>
+        <h2>Esto te cobran. <span class="fire">Y esto te hacen esperar.</span></h2>
+        <p>Editores de aquí y de Latinoamérica. Y también los que editan «con IA». Cobran cada mes. Tardan días.</p>
+      </div>
+      <div class="dms" id="dms" tabindex="0" aria-label="Conversaciones de ejemplo con editores"></div>
+    </div>
+  </section>
+
+  <section id="velocidad">
+    <div class="wrap">
+      <div class="head">
+        <p class="over">Dos cosas que te quita un editor</p>
+        <h2>Te digo la verdad a la cara: <span class="fire">un editor te sale caro. Y lento.</span></h2>
+        <p>No es culpa del editor. Es su trabajo y cobra lo que vale. El problema es pagarlo cada mes y esperarle cada semana.</p>
+      </div>
+      <div class="vs">
+        <div class="box">
+          <h3>Tu dinero</h3>
+          <p>30 reels al mes con un editor, contado en un año:</p>
+          <dl class="lines">
+            <div><dt>A 9 € el reel</dt><dd>3.240 €</dd></div>
+            <div><dt>A 13,5 € el reel</dt><dd>4.860 €</dd></div>
+            <div><dt>Con un editor de 540 €/mes</dt><dd>6.480 €</dd></div>
+            <div><dt>YouTube: 60 min a 9 €/min</dt><dd>6.480 €</dd></div>
+            <div class="good"><dt>AutoEdit Inicial</dt><dd>468 €</dd></div>
+            <div><dt>Plan Fundador, un año</dt><dd>297 €</dd></div>
+          </dl>
+        </div>
+        <div class="box">
+          <h3>Tu tiempo</h3>
+          <p class="tag">Un reel, a escala</p>
+          <div class="race">
+            <div><span>Editor, hasta <b>3 días</b></span><i style="width:100%"></i></div>
+            <div class="ok"><span>AutoEdit <b>5 minutos</b></span><i style="width:.23%"></i></div>
+          </div>
+          <p class="tag">Un vídeo de YouTube, a escala</p>
+          <div class="race">
+            <div><span>Editor, hasta <b>5 días</b></span><i style="width:100%"></i></div>
+            <div class="ok"><span>AutoEdit, hasta <b>2 horas</b></span><i style="width:1.67%"></i></div>
+          </div>
+          <p>Sin perseguir a nadie por WhatsApp. Sin rondas de cambios de ida y vuelta. Lo ves montado, comentas lo que quieras y lo apruebas.</p>
+        </div>
+      </div>
+      <div class="flow" style="margin-top:48px">
+        <h3>De grabar a publicar, el mismo día.</h3>
+        <ol class="steps">
+          <li><b>1</b><span>Grabas</span></li>
+          <li><b>2</b><span>Lo subes</span></li>
+          <li><b>3</b><span>Se edita solo</span><small>Reel en 5 min, YouTube en 1 a 2 h</small></li>
+          <li><b>4</b><span>Lo apruebas</span></li>
+        </ol>
+      </div>
+      <div class="tw" style="margin-top:20px"><table class="duel">
+        <thead><tr><th></th><th>Con un editor</th><th>Con AutoEdit</th></tr></thead>
+        <tbody>
+          <tr><td>Empezar</td><td>Le mandas el bruto y le explicas lo que quieres</td><td>Grabas y lo subes</td></tr>
+          <tr><td>Primera versión</td><td>Esperas días y le persigues para que te la mande</td><td>Se edita solo</td></tr>
+          <tr><td>Un reel</td><td>1 a 3 días</td><td>5 minutos</td></tr>
+          <tr><td>Un vídeo de YouTube</td><td>3 a 5 días</td><td>1 a 2 horas</td></tr>
+          <tr><td>Un cambio</td><td>Se lo pides y esperas otra vez</td><td>Lo dices con tus palabras</td></tr>
+          <tr><td>30 reels al mes</td><td>De 270 a 2.400 €</td><td>39 €, más tu plan de Claude</td></tr>
+          <tr><td>Tu vídeo</td><td>Se lo envías</td><td>Se queda en tu ordenador</td></tr>
+        </tbody>
+      </table></div>
+      <div class="center"><a class="btn" href="#planes">Quiero mis vídeos hoy, no la semana que viene</a></div>
+    </div>
+  </section>
+
+  <section id="producto">
+    <div class="wrap">
+      <div class="head"><h2>Tú grabas. <span class="aura">AutoEdit edita por ti.</span></h2></div>
+      <div class="tl" id="tl" role="img" aria-label="Dibujo de una línea de tiempo con cortes"></div>
+      <p class="fine" style="text-align:center;margin-bottom:24px"><span class="todo">PENDIENTE: grabación o GIF real de la app</span></p>
+      <div class="feats" id="feats"></div>
+    </div>
+  </section>
+
+  <section id="estilos">
+    <div class="wrap">
+      <div class="head"><h2>Los estilos de edición <span class="aura">de los grandes creadores</span></h2></div>
+      <div class="cats" id="cats"></div>
+      <p class="fine" style="text-align:center;margin-top:20px"><span class="todo">PENDIENTE: confirmar que AutoEdit saca estos estilos</span></p>
+    </div>
+  </section>
+
+  <section id="paises">
+    <div class="wrap">
+      <div class="head">
+        <h2>¿Y si contratas en Argentina o en Venezuela?</h2>
+        <p>Te sale más barato, sí. Pero lo pagas cada mes. Y esperas igual.</p>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Editor en…</th><th>Por reel</th><th>Por minuto de YouTube</th><th>30 reels al mes</th><th>60 min de YouTube al mes</th></tr></thead>
+        <tbody>
+          <tr><td>España</td><td>25–80 €</td><td>≈ 14 €</td><td>750–2.400 €</td><td>≈ 840 €</td></tr>
+          <tr><td>Argentina</td><td>9–13,5 € (10–15 USD)</td><td>≈ 9 € (10 USD)</td><td>270–405 €</td><td>≈ 540 €</td></tr>
+          <tr><td>Venezuela (estimación)</td><td>≈ 9 € (10 USD)</td><td>≈ 9 € (10 USD)</td><td>≈ 270 €</td><td>≈ 540 €</td></tr>
+          <tr class="me"><td class="good">AutoEdit Inicial</td><td class="good">1,30 €</td><td class="good">0,65 €</td><td class="good">39 €</td><td class="good">39 €</td></tr>
+        </tbody>
+      </table></div>
+      <p class="fine" style="margin-top:8px">AutoEdit Inicial con sus 60 minutos gastados: 30 reels de 1 minuto o 60 minutos de YouTube. No incluye tu plan de Claude.</p>
+      <p class="strip">AutoEdit: 39 € al mes por 60 minutos, 59 € por 180 minutos. Reel en 5 minutos, vídeo en 1 a 2 horas.</p>
+      <div class="tw"><table>
+        <thead><tr><th>Plan</th><th>Minutos de vídeo final</th><th>Editor Argentina/Venezuela</th><th>Editor España</th><th>AutoEdit</th></tr></thead>
+        <tbody>
+          <tr><td>Inicial</td><td>60 al mes</td><td>≈ 540 €</td><td>≈ 840 €</td><td class="good">39 € al mes</td></tr>
+          <tr><td>Creador</td><td>180 al mes</td><td>≈ 1.620 €</td><td>≈ 2.520 €</td><td class="good">59 € al mes</td></tr>
+          <tr><td>Pro</td><td>Ilimitados</td><td>540 € cada 60 min</td><td>840 € cada 60 min</td><td class="good">99 € al mes</td></tr>
+          <tr><td>Fundador</td><td><span class="todo">PENDIENTE: qué incluye</span></td><td><span class="todo">PENDIENTE</span></td><td><span class="todo">PENDIENTE</span></td><td class="good">297 € por un año</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section id="planes">
+    <div class="wrap">
+      <div class="head">
+        <h2>Deja de pagar por reel. <span class="fire">Y de esperar por vídeo.</span></h2>
+        <p>Todos los planes traen el programa completo. Un minuto es un minuto del vídeo final. Y tienes 15 días de garantía.</p>
+      </div>
+      <div class="offer">
+        <svg class="crono" viewBox="0 0 200 230" fill="none" stroke="currentColor" stroke-width="5" aria-hidden="true">
+          <path d="M84 12h32M100 12v22M152 56l12-12" stroke-linecap="round"/>
+          <circle cx="100" cy="118" r="84"/>
+          <path d="M100 44v12M100 180v12M26 118h12M162 118h12M48 66l8 8M152 66l-8 8M48 170l8-8M152 170l-8-8" stroke-linecap="round"/>
+          <g class="aguja"><path d="M100 118V54" stroke-linecap="round" stroke-width="6"/></g>
+          <circle cx="100" cy="118" r="7" fill="currentColor"/>
+        </svg>
+        <span class="seatpill">50 plazas disponibles</span>
+        <h3>Oferta especial: <span class="fire">Plan Fundador</span></h3>
+        <p class="was">Valorado normalmente en más de 1.200 €</p>
+        <p class="now">Solo ahora <b>297 €</b> <small>por un año</small></p>
+        <p class="rise">Cuando pasemos de 50 plazas, subirá 100 €. Y así sucesivamente.</p>
+        <a class="btn" href="#cierre">Quiero mi plaza de fundador</a>
+        <span class="fine"><span class="todo">PENDIENTE: contador real de plazas; minutos, ordenadores y extras</span></span>
+      </div>
+      <div class="plans">
+        <article class="plan">
+          <h3>Inicial</h3>
+          <div class="price">39 € <small>/mes</small></div>
+          <p class="sub">468 € al año</p>
+          <ul><li>60 min</li><li>1 ordenador</li><li>Todo incluido</li><li class="ed">Con un editor: 540 a 840 €</li><li class="ok">Te ahorras desde 501 € al mes</li></ul>
+          <a class="btn" href="#cierre">Empezar con Inicial</a>
+        </article>
+        <article class="plan top">
+          <span class="badge">Recomendado</span>
+          <h3>Creador</h3>
+          <div class="price">59 € <small>/mes</small></div>
+          <p class="sub">708 € al año</p>
+          <ul><li>180 min</li><li>2 ordenadores</li><li>Todo incluido</li><li class="ed">Con un editor: 1.620 a 2.520 €</li><li class="ok">Te ahorras desde 1.561 € al mes</li></ul>
+          <a class="btn" href="#cierre">Empezar con Creador</a>
+        </article>
+        <article class="plan">
+          <h3>Pro</h3>
+          <div class="price">99 € <small>/mes</small></div>
+          <p class="sub">1.188 € al año</p>
+          <ul><li>Ilimitados</li><li>3 ordenadores</li><li>Todo incluido</li><li class="ed">Con un editor: 540 a 840 € cada 60 min</li></ul>
+          <a class="btn" href="#cierre">Empezar con Pro</a>
+        </article>
+      </div>
+      <div class="cmp">
+        <span class="pill">Importante</span>
+        <h3>59 € al mes o contratar a un editor</h3>
+        <div class="tw" style="margin-top:20px"><table class="duel">
+          <tr><th></th><th>Contratar un editor</th><th>AutoEdit Creador</th></tr>
+          <tr class="me"><td>180 min de vídeo al mes</td><td>1.620 a 2.520 €</td><td>59 €</td></tr>
+          <tr><td>Al año</td><td>19.440 a 30.240 €</td><td>708 €</td></tr>
+          <tr><td>Tu reel listo en</td><td>3 a 5 días</td><td>5 minutos</td></tr>
+          <tr><td>Plan de Claude</td><td>No hace falta</td><td>Aparte</td></tr>
+        </table></div>
+      </div>
+      <p class="reqs">Necesitas Windows o Mac, Chrome o Edge y tu cuenta de pago de Claude (Pro, Max, Team o Enterprise), aparte de tu plan.</p>
+    </div>
+  </section>
+
+  <section id="garantia" style="padding-top:0">
+    <div class="wrap">
+      <div class="guar">
+        <h2>Pruébalo 15 días. Si no te convence, te devolvemos todo.</h2>
+        <p>Si en 15 días has editado como mucho 2 vídeos y no te convence, pulsas «Pedir mi reembolso» en tu cuenta. Y listo.</p>
+        <a class="btn" href="#planes">Probarlo sin riesgo</a>
+        <span class="fine"><span class="todo">PENDIENTE: confirmar que aplica también al Plan Fundador</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="para-quien" style="padding-top:0">
+    <div class="wrap">
+      <div class="head"><h2>Antes de pagar, <span class="aura">mira si te encaja</span></h2></div>
+      <div class="fit">
+        <div class="box lead">
+          <h3>Te encaja si</h3>
+          <ul>
+            <li>Ya grabas tus vídeos y lo que te frena es la edición.</li>
+            <li>Pagas a un editor cada mes o estás a punto de hacerlo.</li>
+            <li>Prefieres aprobar tú el vídeo a esperar días.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>No te encaja si</h3>
+          <ul>
+            <li>Quieres que alguien piense qué grabar. AutoEdit edita lo que tú grabas.</li>
+            <li>No quieres pagar un plan de Claude aparte.</li>
+            <li>No usas Windows o Mac con Chrome o Edge.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="preguntas">
+    <div class="wrap">
+      <div class="head"><h2>Preguntas frecuentes</h2></div>
+      <div class="faq" id="faq"></div>
+    </div>
+  </section>
+
+  <section class="close" id="cierre">
+    <div class="bg" id="closebg" aria-hidden="true"></div>
+    <div class="in wrap">
+      <h2>Cada mes que esperas, <span class="fire">se lo pagas a un editor.</span></h2>
+      <p>Tu reel en 5 minutos. Tu YouTube en 1 a 2 horas. 297 € por un año para las primeras 50 plazas. Quedan <span class="todo">PENDIENTE</span>. Cuando se acaben, se acabó.</p>
+      <a class="btn" href="#planes">Quiero el Plan Fundador</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 AutoEdit</div>
+</footer>
+
+<script>
+const q = s => document.querySelector(s);
+const FUNCIONES = ['Corte automático', 'Animaciones a medida', 'Subtítulos', 'Vertical para Reels', 'Música y efectos', 'Final en 4K'];
+
+const MURO = [['Corte', 'Titular y ficha'], ['Animación', 'Cara con fichas'], ['Subtítulos', 'Palabra a palabra'], ['Vertical', 'Pizarra partida'], ['Música', 'Titular y cara'], ['4K', 'Pantalla filmada']];
+const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+q('#wall').innerHTML = MURO.map(([t, estilo], i) =>
+  `<div class="tile"><b>${t}</b><div class="clip"><video src="estilos/clip-${i + 1}.mp4" poster="estilos/clip-${i + 1}.jpg" muted loop playsinline preload="auto" aria-label="Reel editado: ${estilo}"></video>${i < 3 ? `<span>${estilo}</span>` : ''}</div></div>`).join('');
+if (!sinMovimiento) document.querySelectorAll('#wall video').forEach(v => { v.muted = true; v.play().catch(() => {}); });
+
+const ESTILOS = [['Pizarra partida', 'pizarra'], ['Fichas animadas', 'fichas'], ['Titular y cara', 'titular'], ['Pantalla filmada', 'pantalla'], ['Titular y etiqueta', 'etiqueta']];
+q('#cats').innerHTML = ESTILOS.map(([t, f]) =>
+  `<div class="cat"><span class="pill">${t}</span><div class="shot"><img src="estilos/${f}.jpg" alt="Reel en estilo ${t}" loading="lazy"></div></div>`).join('');
+q('#chips').innerHTML = FUNCIONES.map(t => `<span class="chip">${t}</span>`).join('');
+
+const DMS = [
+  '30 reels a 25 €. 750 € al mes, entrega en 3 a 5 días.',
+  'Editor con IA, 100 € por vídeo. 400 € al mes, 3 días de entrega.',
+  'YouTube a 180 € por vídeo. 720 € al mes, 5 días de entrega.',
+  '15 reels a 9 €. 135 € al mes, los primeros en 4 días.',
+  'Con IA, 12 € el reel y 140 € el vídeo. 3 días por tanda.'
+];
+q('#dms').innerHTML = DMS.map((t, i) =>
+  `<figure class="dm" style="margin:0"><img src="capturas-dm/dm-0${i + 1}.jpg" alt="Conversación de ejemplo con un editor" loading="lazy"><p>${t}</p></figure>`).join('');
+
+/* Calculadora */
+const PAISES = { es: { reel: 25, min: 14 }, ar: { reel: 11, min: 9 }, ve: { reel: 9, min: 9 } };
+const st = { pais: 'ar', reels: 30, videos: 4, dur: 12, pReel: 11, pMin: 9, durR: 1 };
+const eur = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €';
+const planDe = min => min <= 60 ? ['Inicial', 39] : min <= 180 ? ['Creador', 59] : ['Pro', 99];
+const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const pinta = (id, valor) => {
+  const el = q(id), desde = el._v ?? valor;
+  el._v = valor;
+  cancelAnimationFrame(el._raf);
+  if (calmo || desde === valor) { el.textContent = eur(valor); return; }
+  const t0 = performance.now();
+  const paso = t => {
+    const k = Math.min((t - t0) / 350, 1);
+    el.textContent = eur(desde + (valor - desde) * (1 - (1 - k) ** 3));
+    if (k < 1) el._raf = requestAnimationFrame(paso);
+  };
+  el._raf = requestAnimationFrame(paso);
+};
+function calcula() {
+  const edMes = st.reels * st.pReel + st.videos * st.pMin * st.dur;
+  const [nombre, aeMes] = planDe(st.reels * st.durR + st.videos * st.dur);
+  const ahorro = (edMes - aeMes) * 12;
+  q('#rVal').textContent = st.reels;
+  q('#vVal').textContent = st.videos;
+  q('#durVal').textContent = st.dur + ' min';
+  q('#pReelVal').textContent = st.pReel + ' €';
+  q('#pMinVal').textContent = st.pMin + ' €';
+  q('#durRVal').textContent = String(st.durR).replace('.', ',') + ' min';
+  q('#pReel').value = st.pReel;
+  q('#pMin').value = st.pMin;
+  q('#aePlan').textContent = nombre;
+  pinta('#edMes', edMes); pinta('#edAno', edMes * 12);
+  pinta('#aeMes', aeMes); pinta('#aeAno', aeMes * 12);
+  pinta('#barEdVal', edMes * 12); pinta('#barAeVal', aeMes * 12);
+  const tope = Math.max(edMes, aeMes) || 1;
+  q('#barEd').style.width = edMes / tope * 100 + '%';
+  q('#barAe').style.width = aeMes / tope * 100 + '%';
+  q('#saveText').hidden = ahorro <= 0;
+  if (ahorro > 0) { pinta('#ahAno', ahorro); pinta('#ahMes', ahorro / 12); }
+}
+q('#pais').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  st.pais = b.dataset.p;
+  st.pReel = PAISES[st.pais].reel;
+  st.pMin = PAISES[st.pais].min;
+  q('#pais').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  calcula();
+});
+const suma = (id, campo, delta) => q(id).addEventListener('click', () => {
+  st[campo] = Math.max(0, st[campo] + delta);
+  calcula();
+});
+suma('#rMenos', 'reels', -5); suma('#rMas', 'reels', 5);
+suma('#vMenos', 'videos', -1); suma('#vMas', 'videos', 1);
+[['#dur', 'dur'], ['#pReel', 'pReel'], ['#pMin', 'pMin'], ['#durR', 'durR']].forEach(([id, campo]) =>
+  q(id).addEventListener('input', e => { st[campo] = +e.target.value; calcula(); }));
+calcula();
+
+/* Línea de tiempo dibujada, a la espera de la grabación real */
+const CLIPS = [[14, 'v1'], [7, 'v2'], [20, 'v3'], [5, 'v4'], [16, 'v5'], [9, 'v6'], [18, 'v2'], [11, 'v3']];
+const ondas = Array.from({ length: 90 }, (_, i) =>
+  `<i style="height:${Math.round(18 + 80 * Math.abs(Math.sin(i * .62) * Math.cos(i * .21)))}%"></i>`).join('');
+q('#tl').innerHTML = `<div class="clips">${CLIPS.map(([f, c]) => `<i class="${c}" style="flex:${f} 1 0"></i>`).join('')}</div><div class="wave">${ondas}</div>`;
+
+/* Ilustraciones de las 6 funciones: dibujadas por código para no depender de imágenes */
+const G = 'url(#g)';
+const defs = `<defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#6a4bff"/><stop offset=".55" stop-color="#c56ad8"/><stop offset="1" stop-color="#f0c6b6"/></linearGradient></defs>`;
+const wave = i => 10 + 58 * Math.abs(Math.sin(i * .62) * Math.cos(i * .21));
+const bars = (x0, n, gap, color) => Array.from({ length: n }, (_, i) => {
+  const h = wave(i);
+  return `<rect x="${x0 + i * gap}" y="${100 - h / 2}" width="2.4" height="${h}" rx="1.2" fill="${typeof color === 'function' ? color(i) : color}"/>`;
+}).join('');
+const texto = (x, y, s, t) => `<text x="${x}" y="${y}" font-size="${s}" font-weight="800" text-anchor="middle" font-family="Geist,sans-serif" fill="${G}">${t}</text>`;
+const marco = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#ececee" stroke="${G}" stroke-width="1.5"/>`;
+const ART = [
+  bars(30, 30, 7.4, i => i > 9 && i < 20 ? G : '#a1a1aa') + `<rect x="98" y="48" width="84" height="104" rx="8" fill="none" stroke="${G}" stroke-width="1.5"/>`,
+  [0, 1, 2].map(i => `<rect x="${44 + i * 66}" y="${62 - (i === 1 ? 14 : 0)}" width="60" height="${76 + (i === 1 ? 28 : 0)}" rx="6" fill="#ececee" stroke="${i === 1 ? G : 'none'}" stroke-width="1.5"/>`).join(''),
+  `<rect x="46" y="60" width="188" height="80" rx="8" fill="#ececee"/>` + texto(140, 108, 24, 'Subtítulos'),
+  marco(108, 30, 64, 140) + texto(140, 105, 15, '9:16'),
+  bars(30, 30, 7.4, '#a1a1aa') + `<rect x="112" y="30" width="56" height="140" rx="28" fill="#fff" stroke="${G}" stroke-width="1.5"/>`,
+  marco(52, 44, 176, 112) + texto(140, 116, 44, '4K')
+];
+q('#feats').innerHTML = FUNCIONES.map((t, i) =>
+  `<article class="feat"><svg viewBox="0 0 280 200" aria-hidden="true">${defs}${ART[i]}</svg><h3>${t}</h3></article>`).join('');
+
+const FAQ = [
+  ['¿De verdad tengo un reel en 5 minutos?', 'Sí. Grabas, lo subes y AutoEdit lo edita. Un reel sale en unos 5 minutos y un vídeo de YouTube en 1 a 2 horas, según lo largo que sea. Luego lo revisas y lo apruebas.'],
+  ['¿De verdad me ahorro tanto frente a un editor?', 'Haz la cuenta. Aunque contrates en Argentina o Venezuela, 30 reels son de 270 a 405 € al mes, todos los meses. En España, 750 € o más. AutoEdit empieza en 39 € al mes. Usa la calculadora con tus números.'],
+  ['¿Qué es un minuto?', 'Un minuto del vídeo final, ya editado. No de la grabación. Los minutos que no gastas no pasan al mes siguiente.'],
+  ['¿Queda tan bien como con un editor?', '<span class="todo">PENDIENTE: mismo bruto editado por un editor y por AutoEdit, lado a lado</span>'],
+  ['¿Cuánto me cuesta el plan de Claude?', 'Lo pagas aparte y no está incluido en AutoEdit. <span class="todo">PENDIENTE: plan mínimo que sirve, su precio y cuántos vídeos aguanta al mes</span>'],
+  ['¿Necesito saber editar?', 'No. Grabas, revisas en el navegador y apruebas. Si algo no te gusta, lo dices con tus palabras.'],
+  ['¿Qué incluye el Plan Fundador?', 'Un año de AutoEdit por 297 €. <span class="todo">PENDIENTE: contenido y condiciones</span>'],
+  ['¿Quién edita el vídeo?', 'Claude, en tu ordenador y con tu propia cuenta de Claude de pago. Nosotros ponemos el programa, el corte automático y la web para revisarlo todo. Claude no está incluido en el precio.'],
+  ['¿Mi vídeo sale de mi ordenador?', 'No. Se queda en tu ordenador. Para el corte, la app manda la transcripción y la curva de volumen de la voz, que se usan y no se guardan.'],
+  ['¿Puedo cancelar cuando quiera?', 'Sí. Desde tu cuenta, en dos clics. El plan sigue hasta el final del mes pagado.'],
+  ['¿Y si no me convence?', 'Garantía de 15 días: si has editado como mucho 2 vídeos, te devolvemos todo. Si has editado más, tienes 14 días para desistir y te devolvemos lo pagado menos lo ya usado.']
+];
+q('#faq').innerHTML = FAQ.map(([p, r]) => `<details><summary>${p}</summary><p>${r}</p></details>`).join('');
+
+q('#closebg').innerHTML = Array.from({ length: 12 }, (_, i) => `<div class="v${i % 6 + 1}"></div>`).join('');
+</script>
