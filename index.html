@@ -170,7 +170,28 @@ td.good{color:var(--green);font-weight:600}
 .strip{margin:16px 0 28px;text-align:center;font-size:clamp(17px,1.7vw,20px);font-weight:600;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
 
 /* Precios */
-.plans{display:grid;grid-template-columns:1.25fr repeat(3,minmax(0,1fr));gap:16px}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}
+.offer{position:relative;overflow:hidden;border-radius:var(--r-card);padding:36px;display:grid;gap:12px;justify-items:start;background:linear-gradient(var(--panel),var(--panel)) padding-box,var(--fire) border-box;border:2px solid transparent}
+.offer>*:not(.crono){position:relative;z-index:1}
+.crono{position:absolute;right:-30px;top:50%;width:min(62%,420px);transform:translateY(-50%);color:#ffa63d;opacity:.2;pointer-events:none}
+.crono .aguja{transform-origin:100px 118px;animation:aguja 60s steps(60) infinite}
+@keyframes aguja{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.crono .aguja{animation:none}}
+.seatpill{background:var(--fire);color:var(--ink);font-size:14px;font-weight:600;border-radius:999px;padding:5px 14px}
+.offer h3{font-size:clamp(26px,3.2vw,38px);font-weight:600;line-height:1.1;letter-spacing:-.02em}
+.offer .was{color:var(--muted);font-size:17px}
+.offer .now{font-size:17px;color:var(--fg);display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 10px}
+.offer .now b{font-size:clamp(48px,6vw,68px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.offer .now small{font-size:15px;color:var(--muted)}
+.offer .rise{color:var(--red);font-size:16px;font-weight:500}
+.offer .btn{margin-top:6px}
+.plan{position:relative}
+.badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--aura);color:var(--ink);font-size:13px;font-weight:600;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.cmp{margin-top:40px}
+.cmp .pill{display:inline-block;background:var(--mark);color:var(--ink);font-size:13px;font-weight:600;border-radius:999px;padding:3px 12px}
+.cmp h3{font-size:clamp(22px,2.6vw,30px);font-weight:600;line-height:1.15;letter-spacing:-.02em;margin-top:10px}
+.cmp .duel{min-width:0}
+@media (max-width:640px){.offer{padding:24px}.crono{opacity:.1}.cmp .duel th,.cmp .duel td{font-size:13px;padding:10px 8px}}
 .plan{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-card);padding:24px;display:grid;gap:14px;grid-template-rows:auto auto auto 1fr auto;min-width:0}
 .plan.top{background:
   linear-gradient(var(--panel),var(--panel)) padding-box,
@@ -232,7 +253,6 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
   .ctrls{grid-template-columns:repeat(2,minmax(0,1fr))}
   .cats{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px}
   .cat{flex:0 0 min(58%,240px);scroll-snap-align:start}
-  .plans{grid-template-columns:repeat(2,minmax(0,1fr))}
   .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
   .feats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -277,7 +297,7 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
           <a class="btn" href="#planes">Quiero editar en minutos</a>
           <a class="btn ghost" href="#calculadora">Calcula cuánto te ahorras</a>
         </div>
-        <p class="micro">Paquete Fundador a 297 € por un año para las primeras 50 plazas. Garantía de 15 días. Necesitas tu plan de pago de Claude aparte.</p>
+        <p class="micro">Plan Fundador a 297 € por un año para las primeras 50 plazas. Garantía de 15 días. Necesitas tu plan de pago de Claude aparte.</p>
       </div>
       <div class="wallbox">
         <div class="wall" id="wall"></div>
@@ -343,7 +363,7 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
           <p id="saveText">Con AutoEdit te ahorras al año <strong class="fire" id="ahAno"></strong> Son <span id="ahMes"></span> al mes. Y dejas de esperar días por cada vídeo.</p>
           <a class="btn" href="#planes">Quiero ahorrármelo</a>
         </div>
-        <p class="fine">Cálculo orientativo en euros. AutoEdit no incluye tu plan de Claude. Paquete Fundador: 297 € por un año <span class="todo">PENDIENTE: qué incluye</span></p>
+        <p class="fine">Cálculo orientativo en euros. AutoEdit no incluye tu plan de Claude. Plan Fundador: 297 € por un año <span class="todo">PENDIENTE: qué incluye</span></p>
       </div>
       <div class="chips" id="chips"></div>
     </div>
@@ -377,7 +397,7 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
             <div><dt>Con un editor de 540 €/mes</dt><dd>6.480 €</dd></div>
             <div><dt>YouTube: 60 min a 9 €/min</dt><dd>6.480 €</dd></div>
             <div class="good"><dt>AutoEdit Inicial</dt><dd>468 €</dd></div>
-            <div><dt>Paquete Fundador, un año</dt><dd>297 €</dd></div>
+            <div><dt>Plan Fundador, un año</dt><dd>297 €</dd></div>
           </dl>
         </div>
         <div class="box">
@@ -472,19 +492,23 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
         <h2>Deja de pagar por reel. <span class="fire">Y de esperar por vídeo.</span></h2>
         <p>Todos los planes traen el programa completo. Un minuto es un minuto del vídeo final. Y tienes 15 días de garantía.</p>
       </div>
+      <div class="offer">
+        <svg class="crono" viewBox="0 0 200 230" fill="none" stroke="currentColor" stroke-width="5" aria-hidden="true">
+          <path d="M84 12h32M100 12v22M152 56l12-12" stroke-linecap="round"/>
+          <circle cx="100" cy="118" r="84"/>
+          <path d="M100 44v12M100 180v12M26 118h12M162 118h12M48 66l8 8M152 66l-8 8M48 170l8-8M152 170l-8-8" stroke-linecap="round"/>
+          <g class="aguja"><path d="M100 118V54" stroke-linecap="round" stroke-width="6"/></g>
+          <circle cx="100" cy="118" r="7" fill="currentColor"/>
+        </svg>
+        <span class="seatpill">50 plazas disponibles</span>
+        <h3>Oferta especial: <span class="fire">Plan Fundador</span></h3>
+        <p class="was">Valorado normalmente en más de 1.200 €</p>
+        <p class="now">Solo ahora <b>297 €</b> <small>por un año</small></p>
+        <p class="rise">Cuando pasemos de 50 plazas, subirá 100 €. Y así sucesivamente.</p>
+        <a class="btn" href="#cierre">Quiero mi plaza de fundador</a>
+        <span class="fine"><span class="todo">PENDIENTE: contador real de plazas; minutos, ordenadores y extras</span></span>
+      </div>
       <div class="plans">
-        <article class="plan top">
-          <h3>Paquete Fundador</h3>
-          <div class="price">297 € <small>por un año</small></div>
-          <p class="sub">Son 24,75 € al mes</p>
-          <ul>
-            <li>Primeras 50 personas.</li>
-            <li class="ed">Lo mismo que 33 reels a 9 €</li>
-            <li class="ok">Garantía de 15 días</li>
-            <li><span class="todo">PENDIENTE: minutos, ordenadores, extras</span></li>
-          </ul>
-          <a class="btn" href="#cierre">Quiero mi plaza de fundador</a>
-        </article>
         <article class="plan">
           <h3>Inicial</h3>
           <div class="price">39 € <small>/mes</small></div>
@@ -492,7 +516,8 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
           <ul><li>60 min</li><li>1 ordenador</li><li>Todo incluido</li><li class="ed">Con un editor: 540 a 840 €</li><li class="ok">Te ahorras desde 501 € al mes</li></ul>
           <a class="btn" href="#cierre">Empezar con Inicial</a>
         </article>
-        <article class="plan">
+        <article class="plan top">
+          <span class="badge">Recomendado</span>
           <h3>Creador</h3>
           <div class="price">59 € <small>/mes</small></div>
           <p class="sub">708 € al año</p>
@@ -507,7 +532,17 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
           <a class="btn" href="#cierre">Empezar con Pro</a>
         </article>
       </div>
-      <p class="seats">Solo 50 plazas. Ocupadas: <span class="todo">PENDIENTE: contador real</span></p>
+      <div class="cmp">
+        <span class="pill">Importante</span>
+        <h3>59 € al mes o contratar a un editor</h3>
+        <div class="tw" style="margin-top:20px"><table class="duel">
+          <tr><th></th><th>Contratar un editor</th><th>AutoEdit Creador</th></tr>
+          <tr class="me"><td>180 min de vídeo al mes</td><td>1.620 a 2.520 €</td><td>59 €</td></tr>
+          <tr><td>Al año</td><td>19.440 a 30.240 €</td><td>708 €</td></tr>
+          <tr><td>Tu reel listo en</td><td>3 a 5 días</td><td>5 minutos</td></tr>
+          <tr><td>Plan de Claude</td><td>No hace falta</td><td>Aparte</td></tr>
+        </table></div>
+      </div>
       <p class="reqs">Necesitas Windows o Mac, Chrome o Edge y tu cuenta de pago de Claude (Pro, Max, Team o Enterprise), aparte de tu plan.</p>
     </div>
   </section>
@@ -518,7 +553,7 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
         <h2>Pruébalo 15 días. Si no te convence, te devolvemos todo.</h2>
         <p>Si en 15 días has editado como mucho 2 vídeos y no te convence, pulsas «Pedir mi reembolso» en tu cuenta. Y listo.</p>
         <a class="btn" href="#planes">Probarlo sin riesgo</a>
-        <span class="fine"><span class="todo">PENDIENTE: confirmar que aplica también al Paquete Fundador</span></span>
+        <span class="fine"><span class="todo">PENDIENTE: confirmar que aplica también al Plan Fundador</span></span>
       </div>
     </div>
   </section>
@@ -559,7 +594,7 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
     <div class="in wrap">
       <h2>Cada mes que esperas, <span class="fire">se lo pagas a un editor.</span></h2>
       <p>Tu reel en 5 minutos. Tu YouTube en 1 a 2 horas. 297 € por un año para las primeras 50 plazas. Quedan <span class="todo">PENDIENTE</span>. Cuando se acaben, se acabó.</p>
-      <a class="btn" href="#planes">Quiero el Paquete Fundador</a>
+      <a class="btn" href="#planes">Quiero el Plan Fundador</a>
     </div>
   </section>
 </main>
@@ -687,7 +722,7 @@ const FAQ = [
   ['¿Queda tan bien como con un editor?', '<span class="todo">PENDIENTE: mismo bruto editado por un editor y por AutoEdit, lado a lado</span>'],
   ['¿Cuánto me cuesta el plan de Claude?', 'Lo pagas aparte y no está incluido en AutoEdit. <span class="todo">PENDIENTE: plan mínimo que sirve, su precio y cuántos vídeos aguanta al mes</span>'],
   ['¿Necesito saber editar?', 'No. Grabas, revisas en el navegador y apruebas. Si algo no te gusta, lo dices con tus palabras.'],
-  ['¿Qué incluye el Paquete Fundador?', 'Un año de AutoEdit por 297 €. <span class="todo">PENDIENTE: contenido y condiciones</span>'],
+  ['¿Qué incluye el Plan Fundador?', 'Un año de AutoEdit por 297 €. <span class="todo">PENDIENTE: contenido y condiciones</span>'],
   ['¿Quién edita el vídeo?', 'Claude, en tu ordenador y con tu propia cuenta de Claude de pago. Nosotros ponemos el programa, el corte automático y la web para revisarlo todo. Claude no está incluido en el precio.'],
   ['¿Mi vídeo sale de mi ordenador?', 'No. Se queda en tu ordenador. Para el corte, la app manda la transcripción y la curva de volumen de la voz, que se usan y no se guardan.'],
   ['¿Puedo cancelar cuando quiera?', 'Sí. Desde tu cuenta, en dos clics. El plan sigue hasta el final del mes pagado.'],
