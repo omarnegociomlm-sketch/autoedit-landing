@@ -44,13 +44,15 @@ section{padding-block:clamp(56px,7vw,96px)}
 .logo i::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--ink)}
 .links{display:flex;gap:32px;font-size:14px;font-weight:500;color:rgba(255,255,255,.55)}
 .links a:hover{color:var(--fg)}
-.btn-s{background:#fff;color:var(--ink);font-size:14px;font-weight:500;padding:10px 16px;border-radius:8px;white-space:nowrap}
+.btn-s{background:var(--fire);color:var(--ink);font-size:14px;font-weight:600;padding:10px 16px;border-radius:8px;white-space:nowrap;transition:transform .15s}
+.btn-s:hover{transform:translateY(-3px)}
 
 /* Botones */
-.btn{display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer;background:var(--fg);color:var(--ink);font:500 16px var(--sans);padding:14px 28px;border-radius:1000px;text-align:center;transition:transform .15s}
-.btn:hover{transform:translateY(-1px)}
-.btn:active{transform:scale(.98)}
-.btn.ghost{background:none;color:var(--fg);border:1px solid #3f3f46}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer;background:var(--fire);color:var(--ink);font:600 16px var(--sans);padding:14px 28px;border-radius:1000px;text-align:center;transition:transform .15s;animation:sube 2.4s ease-in-out infinite}
+@keyframes sube{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.btn:hover{animation:none;transform:translateY(-5px)}
+.btn:active{animation:none;transform:scale(.98)}
+.btn.ghost{background:linear-gradient(var(--bg),var(--bg)) padding-box,var(--fire) border-box;color:var(--fg);border:1px solid transparent}
 button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #c56ad8;outline-offset:2px}
 
 /* Hero */
@@ -273,6 +275,7 @@ footer{padding-block:32px;border-top:1px solid #16161a;color:var(--dim);font-siz
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .btn,.feat{transition:none}
+  .btn{animation:none}
 }
 </style>
 
